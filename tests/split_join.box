@@ -1,0 +1,8 @@
+set str "box-lang is a powerful language"
+split str
+
+array features "dynamic" "high-level" "fast?"
+join features
+replace features " " with ", "
+
+print str_1 " are " features

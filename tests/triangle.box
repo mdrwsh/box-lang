@@ -1,0 +1,18 @@
+loop i 20
+  set ind
+  set ind2
+  set i i -1
+  set n 20 - i
+  loop j i
+  set ind ind "#"
+  end
+  loop j n
+  set ind2 ind2 " "
+  end
+  print ind2 "#" ind ind "#"
+end
+
+$ EXPLAINATION:
+$ 'ind' and 'ind2' is the variable responsible
+$ for the indentation to form the triangle,
+$ starting from 1 until 20.

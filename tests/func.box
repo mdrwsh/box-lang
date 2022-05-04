@@ -1,0 +1,12 @@
+func string name gender adjective
+  if gender equ "M"
+    set x "He"
+  else if gender equ "F"
+    set x "She"
+  else set x "Someone"
+  print x " is " name ". " x " is so " adjective
+end
+
+string "Ali Gatie" "M" "smart"
+string "Andrea Andromeda" "F" "diligent"
+string "box-lang" "L" "powerful"

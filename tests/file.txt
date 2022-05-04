@@ -1,0 +1,3 @@
+"file "tests\file.box"" "getf source" "file "tests\compare.txt"" "loop i source_len" "printf source_i" "end" "getf compare" "print source" "print " -- "" "print compare" "cmd "del tests\compare.txt"" 
+ -- 
+"file "tests\file.box"" "getf source" "file "tests\compare.txt"" "loop i source_len" "printf source_i" "end" "getf compare" "print source" "print " -- "" "print compare" "cmd "del tests\compare.txt"" 

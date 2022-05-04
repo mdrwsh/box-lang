@@ -1,0 +1,15 @@
+func main n
+  def name
+  loop i n
+    set i i - 1
+    print name:i,1
+  end
+  quit
+end
+
+set name "box-lang"
+loop i 1000
+  if name:i,1 equ ""
+    main i
+  end
+end

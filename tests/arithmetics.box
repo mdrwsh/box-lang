@@ -1,0 +1,24 @@
+set n1 150
+set n2 3
+
+$ addition
+set a1 n1 + n2
+
+$ subtraction
+set a2 n1 - n2
+
+$ division
+set a3 n1 / n2
+
+$ multiplication
+set a4 n1 ++ n2
+
+$ modulus
+set a5 n1 // n2
+
+$ printing result
+print a1
+print a2
+print a3
+print a4
+print a5

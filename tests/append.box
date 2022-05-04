@@ -1,0 +1,6 @@
+array list "a" "b" "c"
+print list
+print list_len
+append list "d" "e" "f"
+print list
+print list_len

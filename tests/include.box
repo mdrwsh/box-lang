@@ -1,0 +1,2 @@
+include "tests\split_join.box"
+print "indeed."

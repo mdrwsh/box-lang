@@ -1,0 +1,12 @@
+$ array is stored by an index number,
+$ startin from 1 (not 0).
+
+$ As an example, {array list "hello" "world"}
+$ will create an 'array' with the length of 2
+$ list_1 refers to "house" as it is the first element
+$ list_2 refers to "world" as it is the sec element
+
+array list "house" "tree" "water" "car" "grass"
+loop i list_len
+print list_i
+end

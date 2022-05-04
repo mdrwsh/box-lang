@@ -1,0 +1,25 @@
+set n 1
+
+$ do specific command WHILE n is less or equal to 50
+while n leq 50
+  set m 1
+  while m leq 10
+    print m
+    set m m + 1
+  end
+  print "------------------ " n
+  set n n + 1
+  if n equ 10
+  $ 'break' can be used to stop a while function, as in python
+  break
+  end
+end
+
+$ COMPARISON (for 'while' and 'if'):
+$ equ - equal , =
+$ neq - not equal , !=
+$ lss - less , <
+$ gtr - greater , >
+$ leq - less or equal , <=
+$ geq - greater or equal , >=
+$ in  - is a part of

@@ -1,0 +1,14 @@
+$ using modulus todo the FizzBuzz program
+
+loop i 100
+  set out
+  if i // 3 equ 0
+  set out out "Fizz"
+  end
+  if i // 5 equ 0
+  set out out "Buzz"
+  end
+  if out equ ""
+  print i
+  else print out
+end

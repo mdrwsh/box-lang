@@ -1,0 +1,14 @@
+if 100 gtr 99
+  print "true"
+else print "false"
+
+if "box" equ "python"
+  print "true"
+else print "false"
+
+set n 0
+set m 1
+
+if m ++ n equ 0
+  print "true"
+else print "false"

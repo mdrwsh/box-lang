@@ -1,0 +1,8 @@
+set name "box-lang"
+if name defined?
+  print "true"
+else print "false"
+set name1
+if name1 defined?
+  print "true"
+else print "false"

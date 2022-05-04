@@ -1,0 +1,9 @@
+set n "box.bat is epic"
+print n
+replace n ".bat" with ".txt"
+print n
+
+array list "apple" "brocolli" "durians" "rambutans" "car"
+print list
+replace list "car" with "grape"
+print list

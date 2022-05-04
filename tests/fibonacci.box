@@ -1,0 +1,9 @@
+set n1 0
+set n2 1
+
+loop i 20
+  print n1
+  set n3 n1 + n2
+  set n1 n2
+  set n2 n3
+end

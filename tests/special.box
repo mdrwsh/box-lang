@@ -1,0 +1,3 @@
+$ Unsupported character: *, unbalanced quotes("") and !
+
+print "Special character case: \"\"@#$^%&()[]{}/|\<>=~`:;,.?"
