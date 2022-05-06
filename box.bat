@@ -308,10 +308,18 @@ exit/b
 
 :join
 if !IS_FUNC! == false if not defined %1_len call :error "'%1' is not an array"
+set joinwith=
+if %2 == with (
+  if "%~3" == "" call :error "missing argument" & exit/b
+  call :datatype %3
+  set "joinwith=!DATATYPE_RETURN!"
+)
 (
 echo set %1=
-echo for /l %%%%a in ^(1,1,^^!%1_len^^!^) do set %1=^^!%1^^!^^!%1_%%%%a^^! 
-echo set %1=^^!%1:~0,-1^^!
+echo for /l %%%%a in ^(1,1,^^!%1_len^^!^) do ^(
+echo   if %%%%a == 1 (set %1=^^!%1^^!^^!%1_%%%%a^^!
+echo   ^) else set %1=^^!%1^^!!joinwith!^^!%1_%%%%a^^!
+echo ^)
 echo set %1_len=
 ) >>!FILE_OUTPUT!
 set %1_len=
