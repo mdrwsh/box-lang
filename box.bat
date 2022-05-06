@@ -11,7 +11,7 @@ if "%~2" == "" (set FILE_OUTPUT=out.bat) else set FILE_OUTPUT=%~2
 set FILE_INPUT=%~1
 
 :main
-set SYS_COMMAND=cmd include print printf printc set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
+set SYS_COMMAND=cmd include print println printf printc set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
 set SYS_SPLITCOM=$ cmd print set get getc getf def array append split join pop replace break else end clear quit
 set SYS_CONDITION=equ neq gtr lss geq leq in
 set SYS_CONDITION_EXT=exist#c5 defined#c5 
@@ -152,6 +152,16 @@ if defined DATATYPE_RETURN (
 ) else echo echo.>>!FILE_OUTPUT!
 exit/b
 
+:println
+call :datatype %*
+if !ERROR_RETURN! == true exit/b
+if defined DATATYPE_RETURN (
+  if !DATA_OP! == true (
+    echo call :PROGRAM_DATA "!DATATYPE_RETURN!" ^& echo^|set/p=^^!DATA^^!>>!FILE_OUTPUT!
+  ) else echo echo^|set/p=!DATATYPE_RETURN!>>!FILE_OUTPUT!
+)
+exit/b
+
 :printf
 if !IS_FUNC! == false if not defined FILE_OP call :error "no file specified, use 'file' command" & exit/b
 call :datatype %*
@@ -278,7 +288,6 @@ set "n=0" & for %%a in (%*) do (
   )
 )
 (
-  echo rem !SYS_CALL!
   echo set %1_temp=
   echo set "n=^!%1_len^!" ^& for %%%%a in ^(!APPEND_TEMP!^) do ^(
   echo   set/a n+=1
