@@ -906,6 +906,8 @@ del "%~2\out.bat" "%~2\out.txt"
 exit/b
 
 :editor
+echo Editor mode (press ctrl+z and enter when done)
+echo.
 copy con .boxtemp >nul
 echo.
 set FILE_INPUT=.boxtemp
