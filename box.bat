@@ -86,11 +86,13 @@ if !BRACKET_COUNT! neq 0 echo ERROR: Unbalanced bracket (-!BRACKET_COUNT!)& set 
 if !ERROR_COUNT! gtr 100 echo STOPPED: Too many errors
 if !START_MAIN! == false echo :PROGRAM_MAIN>>!FILE_OUTPUT!
 if !FROM_INCLUDE! == false echo exit/b>>!FILE_OUTPUT!
-if !ERROR_RETURN! == false (echo SUCCESS: !FILE_INPUT! --^> !FILE_OUTPUT! ^(!TIMED_RETURN!^)) else (
+if !ERROR_RETURN! == false (
+  echo SUCCESS: !FILE_INPUT! --^> !FILE_OUTPUT! ^(!TIMED_RETURN!^)
+  if !COMPILER_OP! == run !FILE_OUTPUT!
+) else (
   echo FAILED: !FILE_INPUT! --^> !FILE_OUTPUT!
   del !FILE_OUTPUT!
 )
-if !COMPILER_OP! == run !FILE_OUTPUT!
 exit/b
 
 :sys
