@@ -1,14 +1,19 @@
 @echo off
 setlocal EnableDelayedExpansion
 if not exist std.bat echo ERROR: could not find 'std.bat' & exit/b
+set COMPILER_OP=
 if "%~1" == "" goto usage
 if %1 == -h goto usage
 if %1 == -t goto tests
+if %1 == -u goto update
 if %1 == -e goto editor
-if not exist "%~1" echo ERROR: %1 --^> could not find the file & exit/b
-if "%~x1" neq ".box" echo ERROR: %1 --^> expected '.box' filetype & exit/b
-if "%~2" == "" (set FILE_OUTPUT=out.bat) else set FILE_OUTPUT=%~2
-set FILE_INPUT=%~1
+if %1 == -c set COMPILER_OP=compile
+if %1 == -r set COMPILER_OP=run
+if not defined COMPILER_OP goto usage
+if not exist "%~2" echo ERROR: %2 --^> could not find the file & exit/b
+if "%~x2" neq ".box" echo ERROR: %2 --^> expected '.box' filetype & exit/b
+if "%~3" == "" (set FILE_OUTPUT=out.bat) else set FILE_OUTPUT=%~3
+set FILE_INPUT=%~2
 
 :main
 set SYS_COMMAND=cmd include print println printf printc set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
@@ -23,6 +28,7 @@ set START_MAIN=false
 set IS_FUNC=false
 set BRACKET_COUNT=0
 set ERROR_COUNT=0
+set INCLUDE_INC=0
 set WHILE_ID=0
 set SYS_STACK=
 set argv=defined
@@ -55,7 +61,7 @@ rem ) >.boxtemp
 
 :STARTCOM
 set SYS_STIME=!time!
-copy std.bat !FILE_OUTPUT!>nul
+type std.bat>!FILE_OUTPUT!
 for /f "tokens=*" %%f in (!FILE_INPUT!) do (
   set TEMPCHARIND=0
   set SYS_CALL=%%f
@@ -79,11 +85,12 @@ call :timed !SYS_STIME! !SYS_ETIME!
 if !BRACKET_COUNT! neq 0 echo ERROR: Unbalanced bracket (-!BRACKET_COUNT!)& set ERROR_RETURN=true& set/a ERROR_COUNT+=1
 if !ERROR_COUNT! gtr 100 echo STOPPED: Too many errors
 if !START_MAIN! == false echo :PROGRAM_MAIN>>!FILE_OUTPUT!
-echo exit/b>>!FILE_OUTPUT!
+if !FROM_INCLUDE! == false echo exit/b>>!FILE_OUTPUT!
 if !ERROR_RETURN! == false (echo SUCCESS: !FILE_INPUT! --^> !FILE_OUTPUT! ^(!TIMED_RETURN!^)) else (
   echo FAILED: !FILE_INPUT! --^> !FILE_OUTPUT!
   del !FILE_OUTPUT!
 )
+if !COMPILER_OP! == run !FILE_OUTPUT!
 exit/b
 
 :sys
@@ -124,8 +131,12 @@ if "%~x1" neq ".box" call :error "expected '.box' filetype" & exit/b
 rem TODO: normalize path
 for %%a in (!FILE_INCLUDE!) do if "%%~a" equ "%~1" call :error "include recursion detected" & exit/b
 echo INCLUDING: %~1
-for /f "tokens=*" %%h in (%~1) do (
-  set SYS_CALL=%%h
+set FILE_INPUT!INCLUDE_INC!=!FILE_INPUT!
+set/a INCLUDE_INC+=1
+set FILE_INPUT=%~1
+for /f "tokens=*" %%f in (!FILE_INPUT!) do (
+  set TEMPCHARIND=0
+  set SYS_CALL=%%f
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:(=#c1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:)=#c2!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:&=#c3!"
@@ -137,8 +148,11 @@ for /f "tokens=*" %%h in (%~1) do (
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:^=#c9!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
-  call :sys %%h
+  call :sys !SYS_CALL!
+  if !ERROR_COUNT! gtr 100 goto ENDCOM
 )
+set/a INCLUDE_INC-=1
+for %%a in (!INCLUDE_INC!) do set FILE_INPUT=!FILE_INPUT%%a!
 set FILE_INCLUDE=!FILE_INCLUDE! "%~1"
 exit/b
 
@@ -851,36 +865,42 @@ set "TIMED_RETURN=!TIMED_RETURN:~0,-2!.!TIMED_RETURN:~-2!s"
 exit/b
 
 :usage
-echo Usage: box ^<input^> ^<option^>
-echo.
-echo ^<input^>
-echo     file-path    specific location to input file
-echo            -e    quickly write and compile program
-echo            -t    compile 'tests\' folder
-echo            -h    show this message
+echo Usage: box ^<option^> ^<file-path^>
 echo.
 echo ^<option^>
-echo     file-path    specific location to output file,
-echo                  default is 'out.bat'
-echo        update    update '-t' expected output
-echo         check    check '-t' after compiled
+echo     -c    compilation mode
+echo     -r    compilation mode + run
+echo     -e    quickly write and compile program
+echo     -t    compile specified folder and check
+echo     -u    update specified testcase output
+echo     -h    show this message
 echo.
 for /l %%a in (1,1,3) do echo|set/p="." & (timeout 1 /nobreak >nul)
 echo.
 exit/b
 
 :tests
-for %%a in (tests\*.box) do @(
-  box %%a tests\out.bat
-  if "%2" == "check" (
-    tests\out>tests\out.txt
-    fc tests\out.txt tests\%%~na.txt>nul
-    if errorlevel 1 fc tests\out.txt tests\%%~na.txt
-  )
-  if "%2" == "update" tests\out>tests\%%~na.txt
+if "%~2" == "" echo usage: %~n0 -t folder & exit/b
+if not exist "%~2" echo ERROR: could not find the folder '%~2' & exit/b
+for %%a in (%~2\*.box) do @(
+  box -c %%a %~2\out.bat
+  %~2\out>%~2\out.txt
+  fc %~2\out.txt %~2\%%~na.txt>nul
+  if errorlevel 1 fc %~2\out.txt %~2\%%~na.txt
 )
 rem TODO: del does not work here
-del "tests\out.bat" "tests\out.txt"
+del "%~2\out.bat" "%~2\out.txt"
+exit/b
+
+:update
+if "%~2" == "" echo usage: %n0 -u folder & exit/b
+if not exist "%~2" echo ERROR: could not find the folder '%~2' & exit/b
+for %%a in (%~2\*.box) do @(
+  box -c %%a %~2\out.bat
+  %~2\out>%~2\%%~na.txt
+)
+rem TODO: del does not work here
+del "%~2\out.bat" "%~2\out.txt"
 exit/b
 
 :editor

@@ -130,4 +130,3 @@ goto :END_WHILE_1
 )
 goto :WHILE_1
 :END_WHILE_1
-exit/b
