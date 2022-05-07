@@ -908,6 +908,7 @@ copy con .boxtemp >nul
 echo.
 set FILE_INPUT=.boxtemp
 set FILE_OUTPUT=out.bat
+set COMPILER_OP=run
 call :main
 del .boxtemp
 exit/b
