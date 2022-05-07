@@ -6,6 +6,10 @@ if "box" equ "python"
   print "true"
 else print "false"
 
+if "p" in "apple"
+  print "true"
+else print "false"
+
 set n 0
 set m 1
 
