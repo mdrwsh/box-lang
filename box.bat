@@ -887,6 +887,7 @@ if not exist "%~2" echo ERROR: could not find the folder '%~2' & exit/b
 for %%a in (%~2\*.box) do @(
   box -c %%a %~2\out.bat
   %~2\out>%~2\out.txt
+  if not exist %~2\%%~na.txt echo ERROR: update the output first using -u command & exit/b
   fc %~2\out.txt %~2\%%~na.txt>nul
   if errorlevel 1 fc %~2\out.txt %~2\%%~na.txt
 )
