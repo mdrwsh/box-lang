@@ -181,7 +181,7 @@ exit/b
 :printf
 if !IS_FUNC! == false if not defined FILE_OP call :error "no file specified, use 'file' command" & exit/b
 call :datatype %*
-echo echo !DATATYPE_RETURN!^>^>!FILE_OP!>>!FILE_OUTPUT!
+echo ^(echo !DATATYPE_RETURN!^) ^>^>!FILE_OP!>>!FILE_OUTPUT!
 exit/b
 
 :printc
@@ -194,6 +194,7 @@ echo.>>!FILE_OUTPUT!
 exit/b
 
 :set
+if "%~1" == "" call :error "not enough argument" & exit/b
 set FROM_SET=
 set SET_TEMP=
 set SET_VARNAME=
