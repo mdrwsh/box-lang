@@ -89,11 +89,12 @@ if !FROM_INCLUDE! == false echo exit/b>>!FILE_OUTPUT!
 if !ERROR_RETURN! == false (
   echo SUCCESS: !FILE_INPUT! --^> !FILE_OUTPUT! ^(!TIMED_RETURN!^)
   if !COMPILER_OP! == run !FILE_OUTPUT!
+  exit/b 0
 ) else (
   echo FAILED: !FILE_INPUT! --^> !FILE_OUTPUT!
   del !FILE_OUTPUT!
+  exit/b 1
 )
-exit/b
 
 :sys
 for %%a in (%*) do (
@@ -252,7 +253,7 @@ if not defined SET_VARNAME call :error "not enough argument" & exit/b
     call :datatype !SET_TEMP!
     echo choice /c:^^!SYS_CHAR:~1^^! /n /cs /m "!DATATYPE_RETURN!"
   ) else echo choice /c:^^!SYS_CHAR:~1^^! /n /cs
-  echo set !SET_VARNAME!=^^!SYS_CHAR:~%%errorlevel%%,1^^!
+  echo set "!SET_VARNAME!=^!SYS_CHAR:~%%errorlevel%%,1^!"
 ) >>!FILE_OUTPUT!
 set !SET_VARNAME!=defined
 exit/b
