@@ -83,10 +83,10 @@ for /f "tokens=*" %%f in (!FILE_INPUT!) do (
     if "!SYS_CALL:~%%a,3!" == "#d3" (set/a QUOTE_COUNT+=1)
   )
   set/a "QUOTE_CHECK=!QUOTE_COUNT!-2*(!QUOTE_COUNT!/2)"
-  if !QUOTE_CHECK! neq 0 (call :error "unbalanced quotation" & exit/b)
-  if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#d3="!"
-  
-  call :sys !SYS_CALL!
+  if !QUOTE_CHECK! neq 0 (call :error "unbalanced quotation") else (
+    if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#d3="!"
+    call :sys !SYS_CALL!
+  )
   if !ERROR_COUNT! gtr 100 goto ENDCOM
 )
 set SYS_ETIME=!time!
