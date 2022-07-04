@@ -1,0 +1,63 @@
+func win
+  def player
+  print
+  print player " win"
+  set isWin "true"
+end
+func refresh
+  $ introduce variable(s) to the compiler, to avoid unknown variable warning
+  def p_1 col player winSt
+  clear
+  loop i p_len + 1
+    if i // 3 equ 1
+      if i neq 1
+        print col
+      end
+      set col
+    end
+    set col col " " p_i
+  end
+  $ check for win position
+  if p_1 p_2 p_3 in winSt
+    win
+  end
+  if p_4 p_5 p_6 in winSt
+    win
+  end
+  if p_7 p_8 p_9 in winSt
+    win
+  end
+  if p_1 p_4 p_7 in winSt
+    win
+  end
+  if p_2 p_5 p_8 in winSt
+    win
+  end
+  if p_3 p_6 p_9 in winSt
+    win
+  end
+end
+
+set player "X"
+set isWin "false"
+set winSt "XXX OOO"
+array p 1 2 3 4 5 6 7 8 9
+
+while 1 equ 1
+  refresh
+  if isWin equ "true"
+    quit
+  end
+  if player equ "X"
+    set player "O"
+  else set player "X"
+  print
+  getc input player "'s turn:"
+  print
+  if input equ "e"
+  $ quit the program
+  quit
+  end
+  $ change an array's element value
+  set p_input player
+end

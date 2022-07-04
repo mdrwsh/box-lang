@@ -1,0 +1,101 @@
+func _init
+  set VARNAME_len 0
+  set VARVALUE_len 0
+end
+
+func sp
+  cmd "type sp.txt"
+end
+
+func _eval
+  set eval
+  loop i input_len
+    set a input_i
+    if a:0,1 a:-1,1 equ "\"\""
+      set eval eval a:1,-1
+    else
+      set varloc "false"
+      loop i VARNAME_len
+        if VARNAME_i equ a
+          set varloc i
+        end
+      end
+      if varloc equ "false"
+        print "ERROR: undefined variable '" a "'"
+      else set eval eval VARVALUE_varloc
+    end
+  end
+end
+
+$ $ $ $ $ $ MAIN PROGRAM $ $ $ $ $ $
+split argv
+
+if argc equ 0
+  print "Usage: box <input-file>"
+  quit
+end
+
+ifnot argv_1 exist?
+  print "ERROR: " argv " --> cannot find the input file"
+  quit
+end
+
+file argv_1
+getf readinput
+
+file "main.bat"
+array VARNAME
+array VARVALUE
+
+set i 1
+while i neq readinput_len
+  set input readinput_i
+  $ replacing special character does not work
+  $ replace input "?" with "#a1"
+  split input
+  set command input_1
+  pop input
+
+  if command equ "print"
+    _eval
+    if eval defined?
+      print eval
+    else print
+  else if command equ "set"
+    set vname input_1
+    pop input
+    _eval
+    set varloc "false"
+    loop i VARNAME_len
+      if VARNAME_i equ vname
+        set varloc i
+      end
+    end
+    if varloc equ "false"
+      append VARNAME vname
+      append VARVALUE eval
+    else 
+      replace VARVALUE VARVALUE_varloc with eval
+      set VARVALUE_varloc eval
+  end
+  else if command equ "get"
+    set var input_1
+    pop input
+    _eval
+    get tempinput eval
+    set varloc "false"
+    loop i VARNAME_len
+      if VARNAME_i equ var
+        set varloc i
+      end
+    end
+    if varloc equ "false"
+      append VARNAME var
+      append VARVALUE tempinput
+    else
+      replace VARVALUE VARVALUE_varloc with tempinput
+      set VARVALUE_varloc tempinput
+  end
+  else print "ERROR: unknown command '" command "'"
+  set i i + 1
+end

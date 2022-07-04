@@ -1,0 +1,22 @@
+set time1 "14:38:42.67"
+set time2 "14:38:49.64"
+
+replace time1 ":" with " "
+replace time1 "." with " "
+replace time2 ":" with " "
+replace time2 "." with " "
+
+split time1
+split time2
+
+set h time2_1 - time1_1
+set m time2_2 - time1_2
+set s time2_3 - time1_3
+set ms time2_4 - time1_4
+
+set h h ++ 360000
+set m m ++ 60000
+set s s ++ 100
+
+set return h + m + s + ms
+print return:0,-2 "." return:-2 "s"

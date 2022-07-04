@@ -1,0 +1,66 @@
+$ function to create a new quiz
+func create
+  $ tell the compiler the file that will be used by 'getf' and 'printf'
+  file "data.txt"
+  set qnum 1
+  set input
+  while 1 equ 1
+    get input "Question " qnum ":"
+    if input equ "-s"
+    break
+    end
+    $ print into a file
+    printf input
+    set ansc 1
+    while ansc leq 4
+      $ get keyboard input
+      get answer "Answer " ansc ":"
+      printf answer
+      set ansc ansc + 1
+    end
+    get cans "Answer (1-4):"
+    printf cans
+    print
+    set qnum qnum + 1
+  end
+  print "Total question: " qnum
+end
+
+$ if 'data.txt' is not found, create a new quiz
+ifnot "data.txt" exist?
+  print "No quiz found, creating one..."
+  print
+  create
+  print
+  print
+  print "Starting quiz..."
+  print
+end
+
+$ read a file and save it as an array, each line is an element
+getf data
+set correct 0
+set i 1
+set q 0
+while i leq data_len
+  set q q + 1
+  print "Question " q ":"
+  print data_i
+  loop n 4
+    set a n + i
+    print "  " n ". " data_a
+  end
+  set a a + 1
+  set ans data_a
+  getc guess "Choose an answer:"
+  if guess equ ans
+    set correct correct + 1
+  end
+  set i i + 6
+  print
+end
+
+print "Score: " correct "/" q
+if correct equ q
+  print "100% accuracy, congrats."
+else print "Better luck next time."

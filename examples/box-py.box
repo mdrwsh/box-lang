@@ -1,0 +1,45 @@
+$ $ $ $ $ $ MAIN PROGRAM $ $ $ $ $ $
+split argv
+
+if argc equ 0
+  print "Usage: box <input-file>"
+  quit
+end
+
+ifnot argv_1 exist?
+  print "ERROR: " argv " --> cannot find the input file"
+  quit
+end
+
+set ind
+file argv_1
+getf readinput
+
+if "out.py" exist?
+  cmd "del out.py"
+end
+file "out.py"
+
+loop i readinput_len
+  set input readinput_i
+  $ replacing special character does not work
+  $ replace input "?" with "#a1"
+  split input
+  set command input_1
+  pop input
+
+  if command equ "print"
+    printf ind "print(" input_1 ")"
+  else if command equ "set"
+    printf ind input_1 "=" input_2
+  else if command equ "get"
+    printf ind input_1 "=input(" input_2 ")"
+  else if command equ "loop"
+    printf ind "for " input_1 " in range(" input_2 "):"
+    set ind ind "  "
+  else if command equ "end"
+    set ind ind:0,-2
+  end
+end
+
+cmd "python out.py"

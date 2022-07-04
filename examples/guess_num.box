@@ -1,0 +1,23 @@
+$ create a function to check guessed number
+$ by comparing it with a randomly generated
+$ number.
+func checkNum num
+  set randomNum random ++ 10 / 32767
+  print "Your guess: " num
+  print "The number: " randomNum
+  if num equ randomNum
+  print "You win."
+  else print "You lose."
+end
+
+$ program starts
+while 1 equ 1
+  get num "Guess a number (1-10), e to exit:"
+  if num equ "e"
+  quit
+  end
+  $ calling the function
+  checkNum num
+  $ print an empty line
+  print
+end

@@ -1,0 +1,24 @@
+Which is the compiler for C language.
+g++
+ggc
+c-lang
+gcc
+4
+Choose the correct statement about Python.
+Statically typed
+Low-level
+Dynamically typed
+Esoteric
+3
+Which one was created first, C or C++
+C
+C++
+They were created at the same time
+What is C?
+1
+How do you write hello world in rust?
+printf^("hello world"^)
+println^("hello world"^)
+print^("hello world"^)
+println^!^("hello world"^)
+4
