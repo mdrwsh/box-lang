@@ -30,6 +30,7 @@ set BRACKET_COUNT=0
 set ERROR_COUNT=0
 set INCLUDE_INC=0
 set WHILE_ID=0
+set SYS_LINE=0
 set SYS_STACK=
 set argv=defined
 set argc=defined
@@ -62,9 +63,11 @@ rem ) >.boxtemp
 :STARTCOM
 set SYS_STIME=!time!
 type std.bat>!FILE_OUTPUT!
-for /f "tokens=*" %%f in (!FILE_INPUT!) do (
+for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
+  set/a SYS_LINE+=1
   set TEMPCHARIND=0
   set SYS_CALL=%%f
+  set "SYS_CALL=!SYS_CALL:*:=!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:(=#c1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:)=#c2!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:&=#c3!"
@@ -76,7 +79,6 @@ for /f "tokens=*" %%f in (!FILE_INPUT!) do (
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:^=#c9!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
-  if defined SYS_CALL set "SYS_CALL=!SYS_CALL:"=#d3!"
   
   rem TODO: quote is checked until the 300th character only
   set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
@@ -88,6 +90,7 @@ for /f "tokens=*" %%f in (!FILE_INPUT!) do (
     call :sys !SYS_CALL!
   )
   if !ERROR_COUNT! gtr 100 goto ENDCOM
+  rem """ <-- restore balance for syntax higlighting
 )
 set SYS_ETIME=!time!
 call :timed !SYS_STIME! !SYS_ETIME!
@@ -820,7 +823,7 @@ if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#c8=^|!"
 if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#c9=^^!"
 if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#d1="!"
 if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#d2=,!"
-echo   ERROR: !SYS_CALL! --^> !ERROR_MSG!
+echo   !FILE_INPUT!:!SYS_LINE!: !SYS_CALL! --^> ERROR: !ERROR_MSG!
 set ERROR_RETURN=true
 exit/b
 
@@ -850,7 +853,7 @@ if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#c8=^|!"
 if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#c9=^^!"
 if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#d1="!"
 if defined ERROR_MSG set "ERROR_MSG=!ERROR_MSG:#d2=,!"
-echo   WARNING: !SYS_CALL! --^> !ERROR_MSG!
+echo   !FILE_INPUT!:!SYS_LINE!: !SYS_CALL! --^> WARNING: !ERROR_MSG!
 exit/b
 
 :timed
