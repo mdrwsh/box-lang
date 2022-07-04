@@ -79,6 +79,7 @@ for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:^=#c9!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
+  if defined SYS_CALL set "SYS_CALL=!SYS_CALL:"=#d3!"
   
   rem TODO: quote is checked until the 300th character only
   set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
@@ -90,7 +91,6 @@ for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
     call :sys !SYS_CALL!
   )
   if !ERROR_COUNT! gtr 100 goto ENDCOM
-  rem """ <-- restore balance for syntax higlighting
 )
 set SYS_ETIME=!time!
 call :timed !SYS_STIME! !SYS_ETIME!
@@ -150,6 +150,7 @@ echo INCLUDING: %~1
 set FILE_INPUT!INCLUDE_INC!=!FILE_INPUT!
 set/a INCLUDE_INC+=1
 set FILE_INPUT=%~1
+rem TODO: error line number is broken for include
 for /f "tokens=*" %%f in (!FILE_INPUT!) do (
   set TEMPCHARIND=0
   set SYS_CALL=%%f
