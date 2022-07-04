@@ -148,12 +148,15 @@ rem TODO: normalize path
 for %%a in (!FILE_INCLUDE!) do if "%%~a" equ "%~1" call :error "include recursion detected" & exit/b
 echo INCLUDING: %~1
 set FILE_INPUT!INCLUDE_INC!=!FILE_INPUT!
+set FILE_LINE!INCLUDE_INC!=!SYS_LINE!
 set/a INCLUDE_INC+=1
 set FILE_INPUT=%~1
-rem TODO: error line number is broken for include
-for /f "tokens=*" %%f in (!FILE_INPUT!) do (
+set SYS_LINE!INCLUDE_INC!=0
+for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
+  set/a SYS_LINE!INCLUDE_INC!+=1
   set TEMPCHARIND=0
   set SYS_CALL=%%f
+  set "SYS_CALL=!SYS_CALL:*:=!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:(=#c1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:)=#c2!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:&=#c3!"
@@ -165,11 +168,24 @@ for /f "tokens=*" %%f in (!FILE_INPUT!) do (
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:^=#c9!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
-  call :sys !SYS_CALL!
+  if defined SYS_CALL set "SYS_CALL=!SYS_CALL:"=#d3!"
+  
+  rem TODO: quote is checked until the 300th character only
+  set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
+    if "!SYS_CALL:~%%a,3!" == "#d3" (set/a QUOTE_COUNT+=1)
+  )
+  set/a "QUOTE_CHECK=!QUOTE_COUNT!-2*(!QUOTE_COUNT!/2)"
+  if !QUOTE_CHECK! neq 0 (call :error "unbalanced quotation") else (
+    if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#d3="!"
+    call :sys !SYS_CALL!
+  )
   if !ERROR_COUNT! gtr 100 goto ENDCOM
 )
 set/a INCLUDE_INC-=1
-for %%a in (!INCLUDE_INC!) do set FILE_INPUT=!FILE_INPUT%%a!
+for %%a in (!INCLUDE_INC!) do (
+  set FILE_INPUT=!FILE_INPUT%%a!
+  set SYS_LINE=!SYS_LINE%%a!
+)
 set FILE_INCLUDE=!FILE_INCLUDE! "%~1"
 exit/b
 
