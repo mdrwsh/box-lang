@@ -16,7 +16,7 @@ if "%~3" == "" (set FILE_OUTPUT=out.bat) else set FILE_OUTPUT=%~3
 set FILE_INPUT=%~2
 
 :main
-set SYS_COMMAND=cmd include print println printf printc set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
+set SYS_COMMAND=cmd include print println printf set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
 set SYS_SPLITCOM=$ cmd print set get getc getf def array append split join pop replace break else end clear quit
 set SYS_TEMPVARCHAR=zyxwvutsrqponmlkjihgfedcba
 set SYS_CONDITION=equ neq gtr lss geq leq in
@@ -213,15 +213,6 @@ exit/b
 if !IS_FUNC! == false if not defined FILE_OP call :error "no file specified, use 'file' command" & exit/b
 call :datatype %*
 echo ^(echo !DATATYPE_RETURN!^) ^>^>!FILE_OP!>>!FILE_OUTPUT!
-exit/b
-
-:printc
-call :datatypef %*
-echo|set/p="echo ">>!FILE_OUTPUT!
-for %%a in (!DATATYPE_RETURN!) do (
-  echo|set/p="^!char_%%~a^!">>!FILE_OUTPUT!
-)
-echo.>>!FILE_OUTPUT!
 exit/b
 
 :set
