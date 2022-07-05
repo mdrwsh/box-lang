@@ -124,7 +124,7 @@ for %%a in (%*) do (
     set "n=-1" & for %%c in (%*) do set/a n+=1& if !n! == 0 (set FUNC_NAMETEMP=%%a) else set FUNC_TEMP=!FUNC_TEMP! %%c
     if !IS_FUNC! == true if !FUNC_NAMETEMP! == !FUNC_NAME! call :error "recursion detected" & exit/b
     call :datatypef !FUNC_TEMP!
-    for %%c in (!FUNC_NAMETEMP!) do if !n! neq !%%c_ARGC! call :error "^(function '!FUNC_NAMETEMP!'^) expected !%%c_ARGC! argument, but got !n!" & exit/b
+    for %%c in (!FUNC_NAMETEMP!) do if !n! neq !%%c_ARGC! call :error "'!FUNC_NAMETEMP!' expects !%%c_ARGC! argument, but got !n!" & exit/b
     (
       echo call :!FUNC_NAMETEMP! !DATATYPE_RETURN!
       echo if ^^!PROGRAM_EXIT^^! == true exit/b
@@ -173,8 +173,7 @@ for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
   
   rem TODO: quote is checked until the 300th character only
   set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
-    if "!SYS_CALL:~%%a,3!" == "#d3" (set/a QUOTE_COUNT+=1)
-  )
+    if "!SYS_CALL:~%%a,3!" == "#d3" (set/a QUOTE_COUNT+=1))
   set/a "QUOTE_CHECK=!QUOTE_COUNT!-2*(!QUOTE_COUNT!/2)"
   if !QUOTE_CHECK! neq 0 (call :error "unbalanced quotation") else (
     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#d3="!"
