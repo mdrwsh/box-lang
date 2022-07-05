@@ -151,9 +151,9 @@ set FILE_INPUT!INCLUDE_INC!=!FILE_INPUT!
 set FILE_LINE!INCLUDE_INC!=!SYS_LINE!
 set/a INCLUDE_INC+=1
 set FILE_INPUT=%~1
-set SYS_LINE!INCLUDE_INC!=0
+set SYS_LINE=0
 for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
-  set/a SYS_LINE!INCLUDE_INC!+=1
+  set/a SYS_LINE+=1
   set TEMPCHARIND=0
   set SYS_CALL=%%f
   set "SYS_CALL=!SYS_CALL:*:=!"
