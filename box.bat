@@ -18,10 +18,12 @@ set FILE_INPUT=%~2
 :main
 set SYS_COMMAND=cmd include print println printf printc set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
 set SYS_SPLITCOM=$ cmd print set get getc getf def array append split join pop replace break else end clear quit
+set SYS_TEMPVARCHAR=zyxwvutsrqponmlkjihgfedcba
 set SYS_CONDITION=equ neq gtr lss geq leq in
 set SYS_CONDITION_EXT=exist#c5 defined#c5 
 set FUNC_COMMAND=PROGRAM_MAIN PROGRAM_DATA
-set SYS_TEMPVARCHAR=zyxwvutsrqponmlkjihgfedcba
+set PROGRAM_MAIN_ARGC=0
+set PROGRAM_DATA_ARGC=0
 set FILE_INCLUDE=!FILE_INPUT!
 set ERROR_RETURN=false
 set START_MAIN=false
@@ -83,8 +85,7 @@ for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
   
   rem TODO: quote is checked until the 300th character only
   set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
-    if "!SYS_CALL:~%%a,3!" == "#d3" (set/a QUOTE_COUNT+=1)
-  )
+    if "!SYS_CALL:~%%a,3!" == "#d3" (set/a QUOTE_COUNT+=1))
   set/a "QUOTE_CHECK=!QUOTE_COUNT!-2*(!QUOTE_COUNT!/2)"
   if !QUOTE_CHECK! neq 0 (call :error "unbalanced quotation") else (
     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#d3="!"
