@@ -1,10 +1,9 @@
 # box-lang
-Box-lang is a high-level programming language written in Batch Script that compiles to native Batch script. This language intends to help solving some problems with Batch script like no specification of error and its hard syntax
+Box-lang is a high-level programming language written in Batch Script that compiles to native Batch script. This language intends to help solving problems with Batch script like no specification of error and its hard syntax.
 
 ## get started
-This language only works on Windows as it use the native batch script that all Windows come with.  
-NO DEPENDECIES REQUIRED.    
-
+This language only works on Windows as it use the native batch script that all Windows comes with.  
+  
 ```
 print "hello, world."
 loop i 5
