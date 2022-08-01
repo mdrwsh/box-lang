@@ -16,7 +16,7 @@ if "%~3" == "" (set FILE_OUTPUT=out.bat) else set FILE_OUTPUT=%~3
 set FILE_INPUT=%~2
 
 :main
-set SYS_COMMAND=cmd include print println printf set get getc getf def array append split join pop replace loop while break if ifnot else end func file clear quit
+set SYS_COMMAND=cmd include print println printf set get getc getf def listfile listfolder array append split join pop replace loop while break if ifnot else end func file clear quit
 set SYS_SPLITCOM=$ cmd print set get getc getf def array append split join pop replace break else end clear quit
 set SYS_TEMPVARCHAR=zyxwvutsrqponmlkjihgfedcba
 set SYS_CONDITION=equ neq gtr lss geq leq in
@@ -65,7 +65,7 @@ rem ) >.boxtemp
 :STARTCOM
 set SYS_STIME=!time!
 type std.bat>!FILE_OUTPUT!
-for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') DO (
+for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') do (
   set/a SYS_LINE+=1
   set TEMPCHARIND=0
   set SYS_CALL=%%f
@@ -204,8 +204,8 @@ call :datatype %*
 if !ERROR_RETURN! == true exit/b
 if defined DATATYPE_RETURN (
   if !DATA_OP! == true (
-    echo call :PROGRAM_DATA "!DATATYPE_RETURN!" ^& echo^|set/p=^^!DATA^^!>>!FILE_OUTPUT!
-  ) else echo echo^|set/p=!DATATYPE_RETURN!>>!FILE_OUTPUT!
+    echo call :PROGRAM_DATA "!DATATYPE_RETURN!" ^& echo^|set/p="^!DATA^!">>!FILE_OUTPUT!
+  ) else echo echo^|set/p="!DATATYPE_RETURN!">>!FILE_OUTPUT!
 )
 exit/b
 
@@ -287,6 +287,20 @@ echo set "%1_len=^!n^!">>!FILE_OUTPUT!
 set %1_len=defined
 set "%1_1=defined"
 set %1=defined
+exit/b
+
+:listfile
+if "%1" == "" call :error "not enough argument" & exit/b
+set LIST_TEMP=
+for %%a in (*) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
+call :array %1 !LIST_TEMP!
+exit/b
+
+:listfolder
+if "%1" == "" call :error "not enough argument" & exit/b
+set LIST_TEMP=
+for /d %%a in (*) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
+call :array %1 !LIST_TEMP!
 exit/b
 
 :def
