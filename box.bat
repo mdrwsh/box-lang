@@ -290,16 +290,26 @@ set %1=defined
 exit/b
 
 :listfile
-if "%1" == "" call :error "not enough argument" & exit/b
+if "%~1" == "" call :error "not enough argument" & exit/b
+if "%~2" == "" call :error "not enough argument" & exit/b
+if "%~2" == "." (set FILE_LIST=*) else (
+  if not exist "%~2" call :warning "this path does not exist" & exit/b
+  set "FILE_LIST=%~2"
+)
 set LIST_TEMP=
-for %%a in (*) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
+for %%a in (!FILE_LIST!) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
 call :array %1 !LIST_TEMP!
 exit/b
 
 :listfolder
-if "%1" == "" call :error "not enough argument" & exit/b
+if "%~1" == "" call :error "not enough argument" & exit/b
+if "%~2" == "" call :error "not enough argument" & exit/b
+if "%~2" == "." (set FOLDER_LIST=*) else (
+  if not exist "%~2" call :warning "this path does not exist" & exit/b
+  set "FOLDER_LIST=%~2"
+)
 set LIST_TEMP=
-for /d %%a in (*) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
+for /d %%a in (!FOLDER_LIST!) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
 call :array %1 !LIST_TEMP!
 exit/b
 
