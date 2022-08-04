@@ -106,7 +106,7 @@ if !ERROR_RETURN! == false (
   exit/b 0
 ) else (
   echo FAILED: !FILE_INPUT! --^> !FILE_OUTPUT!
-  del !FILE_OUTPUT!
+  rem del !FILE_OUTPUT!
   exit/b 1
 )
 
@@ -292,25 +292,59 @@ exit/b
 :listfile
 if "%~1" == "" call :error "not enough argument" & exit/b
 if "%~2" == "" call :error "not enough argument" & exit/b
-if "%~2" == "." (set FILE_LIST=*) else (
-  if not exist "%~2" call :warning "this path does not exist" & exit/b
-  set "FILE_LIST=%~2"
+call :datatype %2
+if "!DATATYPE_RETURN!" == "." (echo set "FILE_LIST=*">>!FILE_OUTPUT!) else (
+  if not exist "!DATATYPE_RETURN!" call :warning "this path does not exist"
+  echo set "FILE_LIST=!DATATYPE_RETURN!\*">>!FILE_OUTPUT!
 )
-set LIST_TEMP=
-for %%a in (!FILE_LIST!) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
-call :array %1 !LIST_TEMP!
+(
+echo set "SYS_COUNT=-1" & set "%1="
+echo for %%%%a in ^(^^!FILE_LIST^^!^) do ^(
+echo   set/a SYS_COUNT+=1
+echo   if not ^^!SYS_COUNT^^! == 0 ^(
+echo     set "%1=^!%1^!"%%%%a" "
+echo     set "%1_^!SYS_COUNT^!=%%%%a"
+echo   ^)
+echo ^)
+echo set %1_len=^^!SYS_COUNT^^!
+) >>!FILE_OUTPUT!
+set "SYS_COUNT=-1" & for %%a in (%*) do (
+  set/a SYS_COUNT+=1
+  if not !SYS_COUNT! == 0 (
+    set %1_!SYS_COUNT!=defined
+  )
+)
+set %1=defined
+set %1_len=defined
 exit/b
 
 :listfolder
 if "%~1" == "" call :error "not enough argument" & exit/b
 if "%~2" == "" call :error "not enough argument" & exit/b
-if "%~2" == "." (set FOLDER_LIST=*) else (
-  if not exist "%~2" call :warning "this path does not exist" & exit/b
-  set "FOLDER_LIST=%~2"
+call :datatype %2
+if "!DATATYPE_RETURN!" == "." (echo set "FOLDER_LIST=*">>!FILE_OUTPUT!) else (
+  if not exist "!DATATYPE_RETURN!" call :warning "this path does not exist"
+  echo set "FOLDER_LIST=!DATATYPE_RETURN!">>!FILE_OUTPUT!
 )
-set LIST_TEMP=
-for /d %%a in (!FOLDER_LIST!) do set "LIST_TEMP=!LIST_TEMP! "%%a" "
-call :array %1 !LIST_TEMP!
+(
+echo set "SYS_COUNT=-1" & set "%1="
+echo for /d %%%%a in ^(^^!FOLDER_LIST^^!^) do ^(
+echo   set/a SYS_COUNT+=1
+echo   if not ^^!SYS_COUNT^^! == 0 ^(
+echo     set "%1=^!%1^!"%%%%a" "
+echo     set "%1_^!SYS_COUNT^!=%%%%a"
+echo   ^)
+echo ^)
+echo set %1_len=^^!SYS_COUNT^^!
+) >>!FILE_OUTPUT!
+set "SYS_COUNT=-1" & for %%a in (%*) do (
+  set/a SYS_COUNT+=1
+  if not !SYS_COUNT! == 0 (
+    set %1_!SYS_COUNT!=defined
+  )
+)
+set %1=defined
+set %1_len=defined
 exit/b
 
 :def
