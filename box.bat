@@ -389,7 +389,7 @@ set "n=0" & for %%a in (%*) do (
   echo set "n=^!%1_len^!" ^& for %%%%a in ^(!APPEND_TEMP!^) do ^(
   echo   set/a n+=1
   echo   set %1_^^!n^^!=%%%%a
-  echo   set %1_temp=^^!%1_temp^^!"%%%%a" 
+  echo   set %1_temp=^^!%1_temp^^!"%%%%~a" 
   echo ^)
   echo if defined %1_temp set "%1_temp=^!%1_temp:~0,-1^!"
   echo set %1=^^!%1^^! ^^!%1_temp^^!
