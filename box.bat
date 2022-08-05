@@ -272,8 +272,8 @@ if not defined SET_VARNAME call :error "not enough argument" & exit/b
 (
   if defined SET_TEMP (
     call :datatype !SET_TEMP!
-    echo choice /c:^^!SYS_CHAR:~1^^! /n /cs /m "!DATATYPE_RETURN!"
-  ) else echo choice /c:^^!SYS_CHAR:~1^^! /n /cs
+    echo choice /c:^^!SYS_CHAR:~1^^! /n /cs /m "!DATATYPE_RETURN!" ^>nul
+  ) else echo choice /c:^^!SYS_CHAR:~1^^! /n /cs ^>nul
   echo set "!SET_VARNAME!=^!SYS_CHAR:~%%errorlevel%%,1^!"
 ) >>!FILE_OUTPUT!
 set !SET_VARNAME!=defined
@@ -388,7 +388,7 @@ set "n=0" & for %%a in (%*) do (
   echo set %1_temp=
   echo set "n=^!%1_len^!" ^& for %%%%a in ^(!APPEND_TEMP!^) do ^(
   echo   set/a n+=1
-  echo   set %1_^^!n^^!=%%%%a
+  echo   set %1_^^!n^^!=%%%%~a
   echo   set %1_temp=^^!%1_temp^^!"%%%%~a" 
   echo ^)
   echo if defined %1_temp set "%1_temp=^!%1_temp:~0,-1^!"
