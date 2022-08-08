@@ -136,8 +136,25 @@ for %%a in (%*) do (
 exit/b
 
 :cmd
-call :datatype %*
-echo !DATATYPE_RETURN!>>!FILE_OUTPUT!
+set CMD_ARGS=
+set CMD_PIPE=
+set CMD_ISPIPE=false
+for %%a in (%*) do (
+  if !CMD_ISPIPE! == false (
+    if %%a == -- (set CMD_ISPIPE=true) else (
+      set "CMD_ARGS=!CMD_ARGS!%%a "
+    )
+  ) else set "CMD_PIPE=!CMD_PIPE!%%a "
+)
+if not defined CMD_ARGS call :error "not enough argument"
+if !CMD_ISPIPE! == true if not defined CMD_PIPE call :error "not enough argument for pipe '--'"
+call :datatype !CMD_ARGS!
+set CMD_ARGS=!DATATYPE_RETURN!
+if !CMD_ISPIPE! == true (
+  call :datatype !CMD_PIPE!
+  set CMD_PIPE=!DATATYPE_RETURN!
+  echo !CMD_ARGS! ^> !CMD_PIPE!>>!FILE_OUTPUT!
+) else echo !CMD_ARGS!>>!FILE_OUTPUT!
 exit/b
 
 :include
