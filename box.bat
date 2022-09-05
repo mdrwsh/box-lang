@@ -230,7 +230,7 @@ exit/b
 
 :printf
 if !IS_FUNC! == false if not defined FILE_OP call :error "no file specified, use 'file' command" & exit/b
-if "%~1" == "" (echo echo.^>^>"!FILE_OP!">>!FILE_OUTPUT!) else (
+if "%~1" == "" (echo set=^>^>"!FILE_OP!">>!FILE_OUTPUT!) else (
   call :datatype %*
   echo ^(echo !DATATYPE_RETURN!^) ^>^>"!FILE_OP!">>!FILE_OUTPUT!
 )
@@ -295,7 +295,7 @@ if not defined SET_VARNAME call :error "not enough argument" & exit/b
     call :datatype !SET_TEMP!
     echo choice /c:^^!SYS_CHAR:~1^^! /n /cs /m "!DATATYPE_RETURN!" ^>nul
   ) else echo choice /c:^^!SYS_CHAR:~1^^! /n /cs ^>nul
-  echo set "!SET_VARNAME!=^!SYS_CHAR:~%%errorlevel%%,1^!"
+  echo for %%%%z in ^(^^!errorlevel^^!^) do set "!SET_VARNAME!=^!SYS_CHAR:~%%%%z,1^!"
 ) >>!FILE_OUTPUT!
 set !SET_VARNAME!=defined
 exit/b
