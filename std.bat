@@ -6,6 +6,7 @@ set SYS_CHAR=/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789
 goto PROGRAM_MAIN
 
 :PROGRAM_DATA
+set "DATA="
 set "temp="&for /f "delims=0123456789." %%i in ("%~1") do set temp=%%i
 if "!temp!" neq "%~1" (
   set "temp="&for /f "delims=+-/" %%i in ("%~1") do set "temp=%%i"

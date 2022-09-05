@@ -99,14 +99,16 @@ call :timed !SYS_STIME! !SYS_ETIME!
 if !BRACKET_COUNT! neq 0 echo ERROR: Unbalanced bracket (-!BRACKET_COUNT!)& set ERROR_RETURN=true& set/a ERROR_COUNT+=1
 if !ERROR_COUNT! gtr 100 echo STOPPED: Too many errors
 if !START_MAIN! == false echo :PROGRAM_MAIN>>!FILE_OUTPUT!
-if !FROM_INCLUDE! == false echo exit/b>>!FILE_OUTPUT!
+if !FROM_INCLUDE! == false echo endlocal & exit/b>>!FILE_OUTPUT!
 if !ERROR_RETURN! == false (
   echo SUCCESS: !FILE_INPUT! --^> !FILE_OUTPUT! ^(!TIMED_RETURN!^)
   if !COMPILER_OP! == run !FILE_OUTPUT!
+  endlocal
   exit/b 0
 ) else (
   echo FAILED: !FILE_INPUT! --^> !FILE_OUTPUT!
-  rem del !FILE_OUTPUT!
+  del !FILE_OUTPUT!
+  endlocal
   exit/b 1
 )
 
@@ -228,8 +230,10 @@ exit/b
 
 :printf
 if !IS_FUNC! == false if not defined FILE_OP call :error "no file specified, use 'file' command" & exit/b
-call :datatype %*
-echo ^(echo !DATATYPE_RETURN!^) ^>^>!FILE_OP!>>!FILE_OUTPUT!
+if "%~1" == "" (echo echo.^>^>"!FILE_OP!">>!FILE_OUTPUT!) else (
+  call :datatype %*
+  echo ^(echo !DATATYPE_RETURN!^) ^>^>"!FILE_OP!">>!FILE_OUTPUT!
+)
 exit/b
 
 :set
@@ -307,15 +311,15 @@ set %1=defined
 exit/b
 
 :listfile
-if "%~1" == "" call :error "not enough argument" & exit/b
 if "%~2" == "" call :error "not enough argument" & exit/b
+set %1=
 call :datatype %2
 if "!DATATYPE_RETURN!" == "." (echo set "FILE_LIST=*">>!FILE_OUTPUT!) else (
   if not exist "!DATATYPE_RETURN!" call :warning "this path does not exist"
   echo set "FILE_LIST=!DATATYPE_RETURN!\*">>!FILE_OUTPUT!
 )
 (
-echo set "SYS_COUNT=-1" & set "%1="
+echo set "SYS_COUNT=-1" ^& set "%1=" ^& set "%1_len="
 echo for %%%%a in ^(^^!FILE_LIST^^!^) do ^(
 echo   set/a SYS_COUNT+=1
 echo   if not ^^!SYS_COUNT^^! == 0 ^(
@@ -336,15 +340,15 @@ set %1_len=defined
 exit/b
 
 :listfolder
-if "%~1" == "" call :error "not enough argument" & exit/b
 if "%~2" == "" call :error "not enough argument" & exit/b
+set %1=
 call :datatype %2
 if "!DATATYPE_RETURN!" == "." (echo set "FOLDER_LIST=*">>!FILE_OUTPUT!) else (
   if not exist "!DATATYPE_RETURN!" call :warning "this path does not exist"
   echo set "FOLDER_LIST=!DATATYPE_RETURN!">>!FILE_OUTPUT!
 )
 (
-echo set "SYS_COUNT=-1" & set "%1="
+echo set "SYS_COUNT=-1" ^& set "%1=" ^& set "%1_len="
 echo for /d %%%%a in ^(^^!FOLDER_LIST^^!^) do ^(
 echo   set/a SYS_COUNT+=1
 echo   if not ^^!SYS_COUNT^^! == 0 ^(
@@ -386,8 +390,9 @@ for %%a in (%*) do (
   )
 )
 if not defined ARRAY_NAME call :error "no argument specified" & exit/b
-if !SYS_COUNT! neq 0 echo set !ARRAY_NAME!=!ARRAY_DATA:~0,-1!>>!FILE_OUTPUT!
-echo set !ARRAY_NAME!_len=!SYS_COUNT!>>!FILE_OUTPUT!
+if !SYS_COUNT! neq 0 set "ARRAY_DATA=!ARRAY_DATA:~0,-1!"
+echo set "!ARRAY_NAME!=!ARRAY_DATA!">>!FILE_OUTPUT!
+echo set "!ARRAY_NAME!_len=!SYS_COUNT!">>!FILE_OUTPUT!
 set !ARRAY_NAME!=defined
 set !ARRAY_NAME!_len=defined
 exit/b
@@ -825,7 +830,7 @@ call :datatype !data2!
 exit/b
 
 :arraytype
-call :datatype
+@REM call :datatype
 set TYPE_RET=
 if !IS_FUNC! == false if not defined %1_len exit/b
 if "%2" equ "len" (
