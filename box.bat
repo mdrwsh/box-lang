@@ -1,8 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 if not exist std.bat echo ERROR: could not find 'std.bat' & exit/b
-set "COMPILER_OP="
-set "COMPILER_SELF=%0"
+set COMPILER_OP=
 if "%~1" == "" goto usage
 if %1 == -h goto usage
 if %1 == -t goto tests
@@ -19,6 +18,7 @@ set FILE_INPUT=%~2
 :main
 set SYS_COMMAND=cmd include print println printf set get getc getf def listfile listfolder array append split join pop replace loop while break if ifnot else end func file clear quit
 set SYS_SPLITCOM=$ cmd print set get getc getf def array append split join pop replace break else end clear quit
+set SYS_BLOCKCOM=func if ifnot while loop
 set SYS_TEMPVARCHAR=zyxwvutsrqponmlkjihgfedcba
 set SYS_CONDITION=equ neq gtr lss geq leq in
 set SYS_CONDITION_EXT=exist#c5 defined#c5 
@@ -37,6 +37,7 @@ set SYS_LINE=0
 set SYS_STACK=
 set argv=defined
 set argc=defined
+set PREV_COM=
 
 rem TODO: separate math operation
 rem (
@@ -119,6 +120,7 @@ for %%a in (%*) do (
   for %%b in (!SYS_COMMAND!) do if %%a == %%b (
     if !START_MAIN! == false if !IS_FUNC! == false if not %%a == func (set START_MAIN=true& echo :PROGRAM_MAIN>>!FILE_OUTPUT!)
     call :%*
+    set PREV_COM=%%a
     exit/b
   )
   for %%b in (!FUNC_COMMAND!) do if %%a == %%b (
@@ -640,6 +642,7 @@ exit/b
 
 :end
 if "%1" neq "" call :error "unexpected argument"
+for %%z in (!PREV_COM!) do if "!SYS_BLOCKCOM!" neq "!SYS_BLOCKCOM:%%z=!" call :error "empty block detected"
 set TEMP_STACK=
 set SYS_COUNT=0
 for %%a in (!SYS_STACK!) do (
@@ -991,7 +994,7 @@ exit/b
 if "%~2" == "" echo usage: %~n0 -t folder & exit/b
 if not exist "%~2" echo ERROR: could not find the folder '%~2' & exit/b
 for %%a in (%~2\*.box) do @(
-  !COMPILER_SELF! -c %%a %~2\out.bat
+  %~n0 -c %%a %~2\out.bat
   %~2\out>%~2\out.txt
   if not exist %~2\%%~na.txt echo ERROR: update the output first using -u command & exit/b
   fc %~2\out.txt %~2\%%~na.txt>nul
@@ -1005,7 +1008,7 @@ exit/b
 if "%~2" == "" echo usage: %n0 -u folder & exit/b
 if not exist "%~2" echo ERROR: could not find the folder '%~2' & exit/b
 for %%a in (%~2\*.box) do @(
-  !COMPILER_SELF! -c %%a %~2\out.bat
+  %~n0 -c %%a %~2\out.bat
   %~2\out>%~2\%%~na.txt
 )
 rem TODO: del does not work here
