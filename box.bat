@@ -16,7 +16,7 @@ if "%~3" == "" (set FILE_OUTPUT=out.bat) else set FILE_OUTPUT=%~3
 set FILE_INPUT=%~2
 
 :main
-set SYS_COMMAND=cmd include print println printf set get getc getf def listfile listfolder array append split join pop replace loop while break if ifnot else end func file clear quit
+set SYS_COMMAND=cmd include print println printf set get getc getf def listfile listfolder array append split join pop replace loop while break if ifnot else end func return file clear quit
 set SYS_SPLITCOM=$ cmd print set get getc getf def array append split join pop replace break else end clear quit
 set SYS_BLOCKCOM=func if ifnot while loop
 set SYS_TEMPVARCHAR=zyxwvutsrqponmlkjihgfedcba
@@ -457,6 +457,7 @@ set %1_len=
 exit/b
 
 :pop
+rem TODO: pop given index
 if !IS_FUNC! == false if not defined %1_len call :error "'%1' is not an array"
 (
 echo set %1=
@@ -651,7 +652,7 @@ for %%a in (!SYS_STACK!) do (
   if !SYS_COUNT! == 1 (
     if %%a == FUNC (
       for %%b in (!FUNC_ARGS!) do set %%b=
-      echo exit/b>>!FILE_OUTPUT!
+      if not defined !FUNC_NAME! echo exit/b>>!FILE_OUTPUT!
       set IS_FUNC=false
     ) else if "!END_TEMP:~0,5!" == "WHILE" (
       (
@@ -665,6 +666,18 @@ if !SYS_COUNT! neq 0 (
   set SYS_STACK=!TEMP_STACK!
   set/a BRACKET_COUNT-=1
 ) else call :error "nothing to end"
+exit/b
+
+:return
+if !IS_FUNC! == false call :error "not inside of a function" & exit/b
+call :datatype %*
+(
+if !DATA_OP! == true (
+  echo call :PROGRAM_DATA "!DATATYPE_RETURN!" ^& set !FUNC_NAME!=^^!DATA^^!
+) else echo set !FUNC_NAME!=!DATATYPE_RETURN!
+echo exit/b
+) >>!FILE_OUTPUT!
+set !FUNC_NAME!=defined
 exit/b
 
 :file
