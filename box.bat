@@ -31,6 +31,7 @@ set START_MAIN=false
 set IS_FUNC=false
 set BRACKET_COUNT=0
 set ERROR_COUNT=0
+set WARN_COUNT=0
 set INCLUDE_INC=0
 set WHILE_ID=0
 set SYS_LINE=0
@@ -118,7 +119,7 @@ if !ERROR_RETURN! == false (
 for %%a in (%*) do (
   if %%a equ $ exit/b
   for %%b in (!SYS_COMMAND!) do if %%a == %%b (
-    if !START_MAIN! == false if !IS_FUNC! == false if not %%a == func (set START_MAIN=true& echo :PROGRAM_MAIN>>!FILE_OUTPUT!)
+    if !START_MAIN! == false if !IS_FUNC! == false if not %%a == func if not %%a == include (set START_MAIN=true& echo :PROGRAM_MAIN>>!FILE_OUTPUT!)
     call :%*
     set PREV_COM=%%a
     exit/b
@@ -134,6 +135,7 @@ for %%a in (%*) do (
       echo call :!FUNC_NAMETEMP! !DATATYPE_RETURN!
       echo if ^^!PROGRAM_EXIT^^! == true exit/b
     ) >>!FILE_OUTPUT!
+    set PREV_COM=%%a
     exit/b
   )
   call :error "unknown command or function" & exit/b
@@ -553,6 +555,8 @@ set LOOP_COUNT=
 for %%a in (%*) do if not defined LOOP_VARNAME (set LOOP_VARNAME=%%a) else set LOOP_COUNT=!LOOP_COUNT!%%a 
 call :ischar !LOOP_VARNAME!
 if !ISCHAR_RETURN! == false call :error "variable name must be character type"
+set "LOOP_COUNT=!LOOP_COUNT:~0,-1!"
+if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"
 call :datatype !LOOP_COUNT!
 call :ischar !DATATYPE_RETURN!
 rem if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' is expected to return number"
@@ -570,6 +574,7 @@ set SYS_STACK=LOOP !SYS_STACK!
 exit/b
 
 :if
+rem TODO: if wifi_input in wifi (wifi_input is out of range, resulting in TRUE)
 call :booltype %*
 (
   if !COND_OP! == in (
@@ -652,7 +657,7 @@ for %%a in (!SYS_STACK!) do (
   if !SYS_COUNT! == 1 (
     if %%a == FUNC (
       for %%b in (!FUNC_ARGS!) do set %%b=
-      if not defined !FUNC_NAME! echo exit/b>>!FILE_OUTPUT!
+      echo exit/b>>!FILE_OUTPUT!
       set IS_FUNC=false
     ) else if "!END_TEMP:~0,5!" == "WHILE" (
       (
@@ -856,6 +861,7 @@ if "%2" equ "len" (
   call :ischar %2
   if !ISCHAR_RETURN! == true (
     if !IS_FUNC! == false if not defined %2 exit/b
+    if not !%1_safe! == true call :warning "'%1_%2' might be out of range"
     for %%a in (!TEMPCHARIND!) do (
       if !FROM_SET! == true (
         set TYPE_RET=%1_%%%%!SYS_TEMPVARCHAR:~%%a,1!
@@ -868,7 +874,7 @@ if "%2" equ "len" (
 exit/b
 
 :indextype
-if not defined %1 exit/b
+if !IS_FUNC! == false if not defined %1 exit/b
 set "INDEXTYPE_TEMP=%*" & set "INDEXTYPE_TEMP=!INDEXTYPE_TEMP:#d2= !"
 set SYS_COUNT=0
 set INDTEMP=
@@ -933,6 +939,9 @@ set ERROR_RETURN=true
 exit/b
 
 :warning
+set/a WARN_COUNT+=1
+if !WARN_COUNT! == 11 echo   INFO: Stopped showing warning
+if !WARN_COUNT! gtr 10 exit/b
 set ERROR_MSG=%~1
 rem if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#1#=^^!!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c1=^(!"
