@@ -556,7 +556,7 @@ for %%a in (%*) do if not defined LOOP_VARNAME (set LOOP_VARNAME=%%a) else set L
 call :ischar !LOOP_VARNAME!
 if !ISCHAR_RETURN! == false call :error "variable name must be character type"
 set "LOOP_COUNT=!LOOP_COUNT:~0,-1!"
-if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"
+if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"& set "VARSAFE_STACK=!VARSAFE_STACK!!VAR_TEMP!"
 call :datatype !LOOP_COUNT!
 call :ischar !DATATYPE_RETURN!
 rem if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' is expected to return number"
@@ -667,6 +667,7 @@ for %%a in (!SYS_STACK!) do (
     ) else echo ^)>>!FILE_OUTPUT!
   ) else set TEMP_STACK=!TEMP_STACK! %%a
 )
+for %%a in (!VARSAFE_STACK!) do (set "%%a_safe=") & set "VARSAFE_STACK="
 if !SYS_COUNT! neq 0 (
   set SYS_STACK=!TEMP_STACK!
   set/a BRACKET_COUNT-=1
