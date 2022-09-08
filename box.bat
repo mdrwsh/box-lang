@@ -556,7 +556,7 @@ for %%a in (%*) do if not defined LOOP_VARNAME (set LOOP_VARNAME=%%a) else set L
 call :ischar !LOOP_VARNAME!
 if !ISCHAR_RETURN! == false call :error "variable name must be character type"
 set "LOOP_COUNT=!LOOP_COUNT:~0,-1!"
-if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"& set "VARSAFE_STACK=!VARSAFE_STACK!!VAR_TEMP!"
+@REM if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"& set "VARSAFE_STACK=!VARSAFE_STACK!!VAR_TEMP!"
 call :datatype !LOOP_COUNT!
 call :ischar !DATATYPE_RETURN!
 rem if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' is expected to return number"
@@ -574,11 +574,10 @@ set SYS_STACK=LOOP !SYS_STACK!
 exit/b
 
 :if
-rem TODO: if wifi_input in wifi (wifi_input is out of range, resulting in TRUE)
 call :booltype %*
 (
   if !COND_OP! == in (
-    echo|set/p="& for %%%%a in (^!DATA1^!) do if "^^!DATA2^^!" neq "^^!DATA2:%%%%a=^^!" ^("
+    echo|set/p="& if defined !DATA1! if defined !DATA2! for %%%%a in (^!DATA1^!) do if "^^!DATA2^^!" neq "^^!DATA2:%%%%a=^^!" ^("
     echo.
   ) else if !COND_OP! == exist#c5 (
     echo ^& if exist "^!DATA1^!" ^(
@@ -594,7 +593,7 @@ exit/b
 call :booltype %*
 (
   if !COND_OP! == in (
-    echo|set/p="& for %%%%a in (^!DATA1^!) do if not "^^!DATA2^^!" neq "^^!DATA2:%%%%a=^^!" ^("
+    echo|set/p="& if defined !DATA1! if defined !DATA2! for %%%%a in (^!DATA1^!) do if not "^^!DATA2^^!" neq "^^!DATA2:%%%%a=^^!" ^("
     echo.
   ) else if !COND_OP! == exist#c5 (
     echo ^& if not exist "^!DATA1^!" ^(
@@ -862,7 +861,7 @@ if "%2" equ "len" (
   call :ischar %2
   if !ISCHAR_RETURN! == true (
     if !IS_FUNC! == false if not defined %2 exit/b
-    if not !%1_safe! == true call :warning "'%1_%2' might be out of range"
+    @REM if not !%1_safe! == true call :warning "'%1_%2' might be out of range"
     for %%a in (!TEMPCHARIND!) do (
       if !FROM_SET! == true (
         set TYPE_RET=%1_%%%%!SYS_TEMPVARCHAR:~%%a,1!
