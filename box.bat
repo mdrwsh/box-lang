@@ -378,7 +378,9 @@ set !ARRAY_NAME!_len=defined
 exit/b
 
 :append
-if !IS_FUNC! == false if not defined %1_len call :error "'%1' is not an array" & exit/b
+if !IS_FUNC! == true (
+  echo if not defined %1_len echo RUN_ERR: '%1' is not an array ^& set PROGRAM_EXIT=true ^& exit/b>>!FILE_OUTPUT!
+) else if not defined %1_len call :error "'%1' is not an array" & exit/b
 set APPEND_TEMP=
 set "n=0" & for %%a in (%*) do (
   set/a "n+=1" & if !n! neq 1 (
@@ -415,7 +417,9 @@ set %1_n=defined
 exit/b
 
 :join
-if !IS_FUNC! == false if not defined %1_len call :error "'%1' is not an array"
+if !IS_FUNC! == true (
+  echo if not defined %1_len echo RUN_ERR: '%1' is not an array ^& set PROGRAM_EXIT=true ^& exit/b>>!FILE_OUTPUT!
+) else if not defined %1_len call :error "'%1' is not an array"
 set joinwith=
 if "%2" == "with" (
   if "%~3" == "" call :error "missing argument" & exit/b
@@ -435,7 +439,9 @@ exit/b
 
 :pop
 rem TODO: pop given index
-if !IS_FUNC! == false if not defined %1_len call :error "'%1' is not an array"
+if !IS_FUNC! == true (
+  echo if not defined %1_len echo RUN_ERR: '%1' is not an array ^& set PROGRAM_EXIT=true ^& exit/b>>!FILE_OUTPUT!
+) else if not defined %1_len call :error "'%1' is not an array"
 (
 echo set %1=
 echo set SYS_COUNT=0
@@ -466,36 +472,20 @@ for %%a in (%*) do (
 )
 if not defined data1 call :error "not enough argument"
 if not defined REP_OP call :error "missing 'with' keyword"
-echo rem !SYS_CALL!>>!FILE_OUTPUT!
-if defined %1_len (
-  rem call :set !data1! !data2!
-  call :datatype !data1!
-  echo set "data1=!DATATYPE_RETURN!">>!FILE_OUTPUT!
-  call :datatype !data2!
-  echo set "data2=!DATATYPE_RETURN!">>!FILE_OUTPUT!
-  (
-    echo set %1=
-    echo for /l %%%%a in ^(1,1,^^!%1_len^^!^) do ^(
-    echo   if "^!%1_%%%%a^!" == "^!data1^!" set %1_%%%%a=^^!data2^^!
-    echo   set %1=^^!%1^^!"^!%1_%%%%a^!" 
-    echo ^)
-  ) >>!FILE_OUTPUT!
-) else (
-  call :datatype !data1!
-  (
-    if !DATA_OP! == true (
-      echo|set/p="call :PROGRAM_DATA !DATATYPE_RETURN! & set ^"DATA1=^^!DATA^^!^""
-    ) else echo|set/p="set ^"DATA1=!DATATYPE_RETURN!^""
-  ) >>!FILE_OUTPUT!
-  call :datatype !data2!
-  (
-    if !DATA_OP! == true (
-      echo|set/p="& call :PROGRAM_DATA !DATATYPE_RETURN! & set ^"DATA2=^^!DATA^^!^""
-    ) else echo|set/p="& set ^"DATA2=!DATATYPE_RETURN!^""
-    echo|set/p="& for %%%%a in ("^^!DATA1^^!") do for %%%%b in ("^^!DATA2^^!") do set %1=^!%1:%%%%~a=%%%%~b^!"
-    echo.
-  ) >>!FILE_OUTPUT!
-)
+call :datatype !data1!
+(
+  if !DATA_OP! == true (
+    echo|set/p="call :PROGRAM_DATA !DATATYPE_RETURN! & set ^"DATA1=^^!DATA^^!^""
+  ) else echo|set/p="set ^"DATA1=!DATATYPE_RETURN!^""
+) >>!FILE_OUTPUT!
+call :datatype !data2!
+(
+  if !DATA_OP! == true (
+    echo|set/p="& call :PROGRAM_DATA !DATATYPE_RETURN! & set ^"DATA2=^^!DATA^^!^""
+  ) else echo|set/p="& set ^"DATA2=!DATATYPE_RETURN!^""
+  echo|set/p="& for %%%%a in ("^^!DATA1^^!") do for %%%%b in ("^^!DATA2^^!") do set %1=^!%1:%%%%~a=%%%%~b^!"
+  echo.
+) >>!FILE_OUTPUT!
 exit/b
 
 :func
