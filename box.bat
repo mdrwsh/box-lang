@@ -31,7 +31,6 @@ set START_MAIN=false
 set IS_FUNC=false
 set BRACKET_COUNT=0
 set ERROR_COUNT=0
-set WARN_COUNT=0
 set INCLUDE_INC=0
 set WHILE_ID=0
 set SYS_LINE=0
@@ -40,31 +39,6 @@ set LOOPVAR_STACK=
 set argv=defined
 set argc=defined
 set PREV_COM=
-
-rem TODO: separate math operation
-rem (
-rem   for /f "tokens=*" %%f in (!FILE_INPUT!) do (
-rem     set "PREVWORD="
-rem     set SYS_CALL=%%f
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:(=#c1!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:)=#c2!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:&=#c3!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:%%=#c4!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:?=#c5!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:>=#c6!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:<=#c7!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:|=#c8!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:^=#c9!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
-rem     if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
-rem     for %%a in (!SYS_CALL!) do (
-rem       for %%b in (!SYS_SPLITCOM! !FUNC_COMMAND!) do if defined PREVWORD if "!PREVWORD!" neq "$" if "!PREVWORD!" neq "else" if %%a == %%b echo.
-rem       set PREVWORD=%%a
-rem       echo|set/p="%%a "
-rem     )
-rem     echo.
-rem   )
-rem ) >.boxtemp
 
 :STARTCOM
 set SYS_STIME=!time!
@@ -86,13 +60,6 @@ for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') do (
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:"=#d3!"
-  @REM if defined SYS_CALL (
-  @REM   set "SYS_CALL=!SYS_CALL:+= + !"
-  @REM   set "SYS_CALL=!SYS_CALL:-= - !"
-  @REM   set "SYS_CALL=!SYS_CALL:/= / !"
-  @REM   set "SYS_CALL=!SYS_CALL:/  /=//!"
-  @REM   set "SYS_CALL=!SYS_CALL:+  +=++!"
-  @REM )
   
   rem TODO: quote is checked until the 300th character only
   set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
@@ -565,11 +532,8 @@ if defined LOOPVAR_STACK set "LOOPVAR_STACK=!LOOPVAR_STACK: =!"
 if defined LOOPVAR_STACK for %%a in (!LOOP_VARNAME!) do if "!LOOPVAR_STACK!" neq "!LOOPVAR_STACK:%%a=!" call :error "'!LOOP_VARNAME!' is already used"
 call :ischar !LOOP_VARNAME!
 if !ISCHAR_RETURN! == false call :error "variable name must be character type"
-@REM set "LOOP_COUNT=!LOOP_COUNT:~0,-1!"
-@REM if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"& set "VARSAFE_STACK=!VARSAFE_STACK!!VAR_TEMP!"
 call :datatype !LOOP_COUNT!
 call :ischar !DATATYPE_RETURN!
-@REM if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' must return number"
 (
   if !DATA_OP! == true (
     echo|set/p="call :PROGRAM_DATA !DATATYPE_RETURN! &"
@@ -856,7 +820,6 @@ for %%a in (%*) do (
 )
 if not defined data1 call :error "not enough argument"
 if not defined COND_OP call :error "Invalid comparison"
-rem if not defined data2 call :error "not enough argument"
 call :datatype !data1!
 (
   if !DATA_OP! == true (
@@ -881,7 +844,6 @@ if "%2" equ "len" (
   call :ischar %2
   if !ISCHAR_RETURN! == true (
     if !IS_FUNC! == false if not defined %2 exit/b
-    @REM if not !%1_safe! == true call :warning "'%1_%2' might be out of range"
     for %%a in (!TEMPCHARIND!) do (
       if !FROM_SET! == true (
         set TYPE_RET=%1_%%%%!SYS_TEMPVARCHAR:~%%a,1!
@@ -930,7 +892,6 @@ exit/b
 :error
 set/a ERROR_COUNT+=1
 set ERROR_MSG=%~1
-rem if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#1#=^^!!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c1=^(!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c2=^)!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c3=^&!"
@@ -959,11 +920,7 @@ set ERROR_RETURN=true
 exit/b
 
 :warning
-set/a WARN_COUNT+=1
-if !WARN_COUNT! == 11 echo   INFO: Stopped showing warning
-if !WARN_COUNT! gtr 10 exit/b
 set ERROR_MSG=%~1
-rem if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#1#=^^!!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c1=^(!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c2=^)!"
 if defined SYS_CALL set "SYS_CALL=!SYS_CALL:#c3=^&!"
