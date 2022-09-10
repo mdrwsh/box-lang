@@ -36,6 +36,7 @@ set INCLUDE_INC=0
 set WHILE_ID=0
 set SYS_LINE=0
 set SYS_STACK=
+set LOOPVAR_STACK=
 set argv=defined
 set argc=defined
 set PREV_COM=
@@ -85,6 +86,13 @@ for /f "delims=" %%f in ('findstr /N "^^" "%~dp0\!FILE_INPUT!"') do (
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:\"=#d1!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:,=#d2!"
   if defined SYS_CALL set "SYS_CALL=!SYS_CALL:"=#d3!"
+  @REM if defined SYS_CALL (
+  @REM   set "SYS_CALL=!SYS_CALL:+= + !"
+  @REM   set "SYS_CALL=!SYS_CALL:-= - !"
+  @REM   set "SYS_CALL=!SYS_CALL:/= / !"
+  @REM   set "SYS_CALL=!SYS_CALL:/  /=//!"
+  @REM   set "SYS_CALL=!SYS_CALL:+  +=++!"
+  @REM )
   
   rem TODO: quote is checked until the 300th character only
   set "QUOTE_COUNT=0" & for /l %%a in (1,1,300) do (
@@ -553,13 +561,15 @@ exit/b
 set LOOP_VARNAME=
 set LOOP_COUNT=
 for %%a in (%*) do if not defined LOOP_VARNAME (set LOOP_VARNAME=%%a) else set LOOP_COUNT=!LOOP_COUNT!%%a 
+if defined LOOPVAR_STACK set "LOOPVAR_STACK=!LOOPVAR_STACK: =!"
+if defined LOOPVAR_STACK for %%a in (!LOOP_VARNAME!) do if "!LOOPVAR_STACK!" neq "!LOOPVAR_STACK:%%a=!" call :error "'!LOOP_VARNAME!' is already used"
 call :ischar !LOOP_VARNAME!
 if !ISCHAR_RETURN! == false call :error "variable name must be character type"
-set "LOOP_COUNT=!LOOP_COUNT:~0,-1!"
+@REM set "LOOP_COUNT=!LOOP_COUNT:~0,-1!"
 @REM if "!LOOP_COUNT:~-4!" == "_len" set "VAR_TEMP=!LOOP_COUNT:~0,-4!"& set "!VAR_TEMP!_safe=true"& set "VARSAFE_STACK=!VARSAFE_STACK!!VAR_TEMP!"
 call :datatype !LOOP_COUNT!
 call :ischar !DATATYPE_RETURN!
-rem if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' is expected to return number"
+@REM if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' must return number"
 (
   if !DATA_OP! == true (
     echo|set/p="call :PROGRAM_DATA !DATATYPE_RETURN! &"
@@ -569,6 +579,7 @@ rem if !ISCHAR_RETURN! == true call :warning "'!LOOP_COUNT!' is expected to retu
   echo set !LOOP_VARNAME!=%%%%i
 ) >>!FILE_OUTPUT!
 set !LOOP_VARNAME!=defined
+set LOOPVAR_STACK=!LOOP_VARNAME! !LOOPVAR_STACK!
 set/a BRACKET_COUNT+=1
 set SYS_STACK=LOOP !SYS_STACK!
 exit/b
@@ -577,7 +588,7 @@ exit/b
 call :booltype %*
 (
   if !COND_OP! == in (
-    echo|set/p="& if defined !DATA1! if defined !DATA2! for %%%%a in (^!DATA1^!) do if "^^!DATA2^^!" neq "^^!DATA2:%%%%a=^^!" ^("
+    echo|set/p="& if !DATA1! neq "" if !DATA2! neq "" for %%%%a in (^!DATA1^!) do if "^^!DATA2^^!" neq "^^!DATA2:%%%%a=^^!" ^("
     echo.
   ) else if !COND_OP! == exist#c5 (
     echo ^& if exist "^!DATA1^!" ^(
@@ -663,6 +674,15 @@ for %%a in (!SYS_STACK!) do (
       echo goto :!END_TEMP!
       echo :END_!END_TEMP!
       ) >>!FILE_OUTPUT!
+    ) else if %%a == LOOP (
+      set SYS_COUNT2=0
+      set TEMPVAR_STACK=
+      for %%b in (!LOOPVAR_STACK!) do (
+        set/a SYS_COUNT2+=1
+        if !SYS_COUNT2! gtr 1 set TEMPVAR_STACK=%%b !TEMPVAR_STACK!
+      )
+      set LOOPVAR_STACK=!TEMPVAR_STACK!
+      echo ^)>>!FILE_OUTPUT!
     ) else echo ^)>>!FILE_OUTPUT!
   ) else set TEMP_STACK=!TEMP_STACK! %%a
 )
